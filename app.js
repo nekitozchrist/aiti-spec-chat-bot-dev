@@ -39,6 +39,7 @@
         }
         originalLog.apply(console, args);
     };
+        // =======================================
     
     var bridge = window.vkBridge.default || window.vkBridge;
     bridge.send('VKWebAppInit');
