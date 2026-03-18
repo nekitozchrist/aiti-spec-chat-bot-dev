@@ -275,8 +275,7 @@
         stepSolved: stepSolved,
         showInfo: showInfo,
         handleMainButton: handleMainButton,
-        problemSolved: problemSolved,
-        needOperator: needOperator
+        problemSolved: problemSolved
     };
     
     initApp();
