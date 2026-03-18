@@ -19,6 +19,7 @@
         knowledgeTexts: {},
         diagnosticsList: null,
         diagnosticSolutions: {},
+        networkSteps: {},  // для хранения шагов диагностики сети
         info: null
     };
     
@@ -131,41 +132,9 @@
     }
     
     function renderKnowledgeContent(key, data) {
-        if (typeof data === 'string' || data.text) {
-            contentEl.innerHTML = '<div class="kb-text">' + (data.text || data) + '</div>';
-            return;
-        }
-        if (data.type === 'expandable') {
-            var html = '<h3>' + data.title + '</h3>';
-            for (var i = 0; i < data.items.length; i++) {
-                var item = data.items[i];
-                html += '<button class="menu-item" onclick="app.showNetworkStep(\'' + item.key + '\')">' + item.text + '</button>';
-            }
-            html += '<button class="menu-item btn-danger" onclick="app.needOperator()">📞 Связь с администратором</button>';
-            contentEl.innerHTML = html;
-        }
-    }
-
-    function showNetworkStep(step) {
-        currentScreen = 'network_step:' + step;
-        headerEl.innerHTML = '<button class="back-btn" onclick="app.showKnowledgeContent(\'network\')">← Назад к списку</button>';
-        
-        contentEl.innerHTML = '<div class="loading">Загрузка...</div>';
-        
-        callProcedure('getNetworkDetails', { step: step }, function(data) {
-            var html = '<div class="kb-text">' + data.text + '</div>';
-            html += '<div class="solution-actions">';
-            html += '<button class="menu-item btn-success" onclick="app.stepSolved()">✅ Помогло</button>';
-            html += '<button class="menu-item" onclick="app.showKnowledgeContent(\'network\')">🔁 Другой шаг</button>';
-            html += '<button class="menu-item btn-danger" onclick="app.needOperator()">📞 Связь с администратором</button>';
-            html += '</div>';
-            contentEl.innerHTML = html;
-        });
-    }
-    
-    function stepSolved() {
-        alert('✅ Отлично! Проблема решена.');
-        showMainMenu();
+        // База знаний всегда возвращает текст (поле text или просто строку)
+        var text = data.text || data;
+        contentEl.innerHTML = '<div class="kb-text">' + text + '</div>';
     }
     
     function showDiagnosticsList() {
@@ -189,9 +158,72 @@
         var html = '';
         for (var i = 0; i < data.problems.length; i++) {
             var p = data.problems[i];
-            html += '<button class="menu-item" onclick="app.showDiagnosticSolution(\'' + p.key + '\')">' + p.icon + ' ' + p.title + '</button>';
+            html += '<button class="menu-item" onclick="app.handleDiagnosticChoice(\'' + p.key + '\')">' + p.icon + ' ' + p.title + '</button>';
         }
         contentEl.innerHTML = html;
+    }
+    
+    function handleDiagnosticChoice(key) {
+        if (key === 'network_diag') {
+            showNetworkDiagnostics();
+        } else {
+            showDiagnosticSolution(key);
+        }
+    }
+    
+    function showNetworkDiagnostics() {
+        currentScreen = 'network_diag';
+        headerEl.innerHTML = '<button class="back-btn" onclick="app.showDiagnosticsList()">← Назад</button>';
+        
+        // Показываем список шагов (можно захардкодить или загрузить через метод)
+        var steps = [
+            { key: 'step1', text: '1. Проверьте кабель Ethernet' },
+            { key: 'step2', text: '2. Перезагрузите роутер' },
+            { key: 'step3', text: '3. Проверьте Wi-Fi подключение' },
+            { key: 'step4', text: '4. Запустите диагностику Windows' },
+            { key: 'step5', text: '5. Обновите драйвер сетевой карты' }
+        ];
+        
+        var html = '<h3>🌐 Диагностика сети</h3>';
+        for (var i = 0; i < steps.length; i++) {
+            var step = steps[i];
+            html += '<button class="menu-item" onclick="app.showNetworkStep(\'' + step.key + '\')">' + step.text + '</button>';
+        }
+        html += '<button class="menu-item btn-danger" onclick="app.needOperator()">📞 Связь с администратором</button>';
+        contentEl.innerHTML = html;
+    }
+    
+    function showNetworkStep(step) {
+        currentScreen = 'network_step:' + step;
+        headerEl.innerHTML = '<button class="back-btn" onclick="app.showNetworkDiagnostics()">← Назад к списку</button>';
+        
+        // Проверяем кэш
+        if (cache.networkSteps[step]) {
+            renderNetworkStep(step, cache.networkSteps[step]);
+            return;
+        }
+        
+        contentEl.innerHTML = '<div class="loading">Загрузка...</div>';
+        
+        callProcedure('getNetworkDetails', { step: step }, function(data) {
+            cache.networkSteps[step] = data.text;
+            renderNetworkStep(step, data.text);
+        });
+    }
+    
+    function renderNetworkStep(step, text) {
+        var html = '<div class="kb-text">' + text + '</div>';
+        html += '<div class="solution-actions">';
+        html += '<button class="menu-item btn-success" onclick="app.stepSolved()">✅ Помогло</button>';
+        html += '<button class="menu-item" onclick="app.showNetworkDiagnostics()">🔁 Другой шаг</button>';
+        html += '<button class="menu-item btn-danger" onclick="app.needOperator()">📞 Связь с администратором</button>';
+        html += '</div>';
+        contentEl.innerHTML = html;
+    }
+    
+    function stepSolved() {
+        alert('✅ Отлично! Проблема решена.');
+        showMainMenu();
     }
     
     function showDiagnosticSolution(key) {
@@ -270,13 +302,15 @@
         showKnowledgeCategories: showKnowledgeCategories,
         showKnowledgeContent: showKnowledgeContent,
         showDiagnosticsList: showDiagnosticsList,
+        handleDiagnosticChoice: handleDiagnosticChoice,
         showDiagnosticSolution: showDiagnosticSolution,
+        showNetworkDiagnostics: showNetworkDiagnostics,
+        showNetworkStep: showNetworkStep,
+        stepSolved: stepSolved,
         showInfo: showInfo,
         handleMainButton: handleMainButton,
         problemSolved: problemSolved,
-        needOperator: needOperator,
-        showNetworkStep: showNetworkStep,
-        stepSolved: stepSolved
+        needOperator: needOperator
     };
     
     initApp();
