@@ -25,7 +25,7 @@
     
     function initApp() {
         bridge.send("VKWebAppGetAuthToken", {
-            "app_id": 54477515,
+            "app_id": process.env.APP_ID,
             "scope": ""
         }).then(function(data) {
             userToken = data.access_token;
@@ -191,12 +191,8 @@
     function showNetworkStep(step) {
         currentScreen = 'network_step:' + step;
         headerEl.innerHTML = '<button class="back-btn" onclick="app.showNetworkDiagnostics()">← Назад к списку</button>';
-        
         contentEl.innerHTML = '<div class="loading">Загрузка...</div>';
-        
-        // Преобразуем "step1" в "1", "step2" в "2" и т.д.
         var stepNumber = step.substring(4);
-        
         callProcedure('getNetworkDetails', { step: stepNumber }, function(data) {
             renderNetworkStep(step, data.text);
         });
@@ -219,14 +215,11 @@
     function showDiagnosticSolution(key) {
         currentScreen = 'solution:' + key;
         headerEl.innerHTML = '<button class="back-btn" onclick="app.showDiagnosticsList()">← Назад</button>';
-        
         if (cache.diagnosticSolutions[key]) {
             renderDiagnosticSolution(key, cache.diagnosticSolutions[key]);
             return;
         }
-        
         contentEl.innerHTML = '<div class="loading">Загрузка...</div>';
-        
         callProcedure('getDiagnosticSolution', { problem: key }, function(data) {
             cache.diagnosticSolutions[key] = data.text;
             renderDiagnosticSolution(key, data.text);
@@ -244,14 +237,11 @@
     function showInfo() {
         currentScreen = 'info';
         headerEl.innerHTML = '<button class="back-btn" onclick="app.showMainMenu()">← Назад</button>';
-        
         if (cache.info) {
             contentEl.innerHTML = '<div class="kb-text">' + cache.info + '</div>';
             return;
         }
-        
         contentEl.innerHTML = '<div class="loading">Загрузка...</div>';
-        
         callProcedure('getInfo', {}, function(data) {
             cache.info = data.text;
             contentEl.innerHTML = '<div class="kb-text">' + data.text + '</div>';
@@ -261,19 +251,6 @@
     function problemSolved() {
         alert('✅ Отлично! Рады, что помогли.');
         showMainMenu();
-    }
-    
-    function needOperator() {
-        // Прямая ссылка на диалог с сообществом
-        var chatUrl = 'https://vk.com/im?sel=-214856459';
-        
-        // Пробуем открыть через Bridge
-        bridge.send('VKWebAppOpenExternalUrl', {
-            url: chatUrl
-        }).catch(function() {
-            // Если не вышло — показываем ссылку
-            alert('Напишите нам: ' + chatUrl);
-        });
     }
     
     function handleMainButton(action, param) {
