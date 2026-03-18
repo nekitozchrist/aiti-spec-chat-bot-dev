@@ -1,0 +1,8 @@
+jobs:
+  build:
+    steps:
+      - run: |
+          echo "window.APP_CONFIG = {
+            app_id: '${vars.APP_ID}'
+          };" > public/config.js
+      - uses: actions/configure-pages@v4
