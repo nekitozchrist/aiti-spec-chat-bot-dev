@@ -1,8 +1,14 @@
 jobs:
   build:
     steps:
-      - run: |
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Generate config file
+        run: |
           echo "window.APP_CONFIG = {
-            app_id: '${vars.APP_ID}'
-          };" > config.js
-      - uses: actions/configure-pages@v4
+            app_id: '${{ vars.APP_ID }}'
+          };" > config.js  # Изменено: public/config.js → config.js
+      
+      - name: Deploy to GitHub Pages
+        uses: actions/configure-pages@v4
