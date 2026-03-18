@@ -146,27 +146,14 @@
         }
     }
 
-    function showNetworkStep(step) {
-        currentScreen = 'network_step:' + step;
-        headerEl.innerHTML = '<button class="back-btn" onclick="app.showKnowledgeContent(\'network\')">← Назад к списку</button>';
-        
-        contentEl.innerHTML = '<div class="loading">Загрузка...</div>';
-        
-        callProcedure('getNetworkDetails', { step: step }, function(data) {
-            var html = '<div class="kb-text">' + data.text + '</div>';
-            html += '<div class="solution-actions">';
-            html += '<button class="menu-item btn-success" onclick="app.stepSolved()">✅ Помогло</button>';
-            html += '<button class="menu-item" onclick="app.showKnowledgeContent(\'network\')">🔁 Другой шаг</button>';
-            html += '<button class="menu-item btn-danger" onclick="app.needOperator()">📞 Связь с администратором</button>';
-            html += '</div>';
-            contentEl.innerHTML = html;
-        });
-    }
-    
-    window.stepSolved = function() {
+    function stepSolved() {
         alert('✅ Отлично! Проблема решена.');
         showMainMenu();
-    };
+    }
+    function stepSolved() {
+        alert('✅ Отлично! Проблема решена.');
+        showMainMenu();
+    }
     
     function showDiagnosticsList() {
         currentScreen = 'diagnostics';
@@ -274,7 +261,9 @@
         showInfo: showInfo,
         handleMainButton: handleMainButton,
         problemSolved: problemSolved,
-        needOperator: needOperator
+        needOperator: needOperator,
+        showNetworkStep: showNetworkStep,
+        stepSolved: stepSolved
     };
     
     initApp();
