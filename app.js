@@ -175,39 +175,37 @@
         currentScreen = 'network_diag';
         headerEl.innerHTML = '<button class="back-btn" onclick="app.showDiagnosticsList()">← Назад</button>';
         
-        // Показываем список шагов (можно захардкодить или загрузить через метод)
-        var steps = [
-            { key: 'step1', text: '1. Проверьте кабель Ethernet' },
-            { key: 'step2', text: '2. Перезагрузите роутер' },
-            { key: 'step3', text: '3. Проверьте Wi-Fi подключение' },
-            { key: 'step4', text: '4. Запустите диагностику Windows' },
-            { key: 'step5', text: '5. Обновите драйвер сетевой карты' }
-        ];
+        contentEl.innerHTML = '<div class="loading">Загрузка...</div>';
         
-        var html = '<h3>🌐 Диагностика сети</h3>';
-        for (var i = 0; i < steps.length; i++) {
-            var step = steps[i];
-            html += '<button class="menu-item" onclick="app.showNetworkStep(\'' + step.key + '\')">' + step.text + '</button>';
-        }
-        html += '<button class="menu-item btn-danger" onclick="app.needOperator()">📞 Связь с администратором</button>';
-        contentEl.innerHTML = html;
+        callProcedure('getNetworkSteps', {}, function(data) {
+            var steps = data.steps;
+            var html = '<h3>🌐 Диагностика сети</h3>';
+            for (var i = 0; i < steps.length; i++) {
+                var step = steps[i];
+                html += '<button class="menu-item" onclick="app.showNetworkStep(\'' + step.key + '\')">' + step.text + '</button>';
+            }
+            html += '<button class="menu-item btn-danger" onclick="app.needOperator()">📞 Связь с администратором</button>';
+            contentEl.innerHTML = html;
+        });
     }
     
     function showNetworkStep(step) {
         currentScreen = 'network_step:' + step;
         headerEl.innerHTML = '<button class="back-btn" onclick="app.showNetworkDiagnostics()">← Назад к списку</button>';
         
-        // Проверяем кэш
-        if (cache.networkSteps[step]) {
-            renderNetworkStep(step, cache.networkSteps[step]);
-            return;
-        }
-        
         contentEl.innerHTML = '<div class="loading">Загрузка...</div>';
         
-        callProcedure('getNetworkDetails', { step: step }, function(data) {
-            cache.networkSteps[step] = data.text;
-            renderNetworkStep(step, data.text);
+        // Преобразуем "step1" в "1", "step2" в "2" и т.д.
+        var stepNumber = step.substring(4);
+        
+        callProcedure('getNetworkDetails', { step: stepNumber }, function(data) {
+            var html = '<div class="kb-text">' + data.text + '</div>';
+            html += '<div class="solution-actions">';
+            html += '<button class="menu-item btn-success" onclick="app.stepSolved()">✅ Помогло</button>';
+            html += '<button class="menu-item" onclick="app.showNetworkDiagnostics()">🔁 Другой шаг</button>';
+            html += '<button class="menu-item btn-danger" onclick="app.needOperator()">📞 Связь с администратором</button>';
+            html += '</div>';
+            contentEl.innerHTML = html;
         });
     }
     
