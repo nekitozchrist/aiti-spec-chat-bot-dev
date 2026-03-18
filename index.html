@@ -14,52 +14,6 @@
             <div class="loading">Загрузка...</div>
         </div>
     </div>
-    <script>
-    // Блокировка отправки статистики на vk-portal.net
-    (function() {
-        // Перехватываем fetch
-        var originalFetch = window.fetch;
-        window.fetch = function() {
-            var args = arguments;
-            var url = args[0] ? (args[0].url || args[0]) : '';
-            if (typeof url === 'string' && url.indexOf('stats.vk-portal.net') > -1) {
-                // Возвращаем "пустой" успешный ответ, чтобы не было ошибок в консоли
-                return Promise.resolve(new Response(null, { status: 200, statusText: 'OK' }));
-            }
-            return originalFetch.apply(this, args);
-        };
-
-        // Перехватываем XMLHttpRequest
-        var XHR = XMLHttpRequest.prototype;
-        var originalOpen = XHR.open;
-        var originalSend = XHR.send;
-
-        XHR.open = function(method, url) {
-            this._url = url;
-            return originalOpen.apply(this, arguments);
-        };
-
-        XHR.send = function() {
-            if (this._url && this._url.indexOf('stats.vk-portal.net') > -1) {
-                // Имитируем успешный ответ, чтобы избежать ошибки
-                Object.defineProperty(this, 'readyState', { get: function() { return 4; } });
-                Object.defineProperty(this, 'status', { get: function() { return 200; } });
-                Object.defineProperty(this, 'responseText', { get: function() { return ''; } });
-                
-                if (this.onreadystatechange) {
-                    this.readyState = 4;
-                    this.status = 200;
-                    this.onreadystatechange();
-                }
-                if (this.onload) {
-                    this.onload();
-                }
-                return;
-            }
-            return originalSend.apply(this, arguments);
-        };
-    })();
-    </script>
     <script src="app.js"></script>
 </body>
 </html>
