@@ -184,7 +184,6 @@
                 var step = steps[i];
                 html += '<button class="menu-item" onclick="app.showNetworkStep(\'' + step.key + '\')">' + step.text + '</button>';
             }
-            html += '<button class="menu-item btn-danger" onclick="app.needOperator()">📞 Связь с администратором</button>';
             contentEl.innerHTML = html;
         });
     }
@@ -199,22 +198,15 @@
         var stepNumber = step.substring(4);
         
         callProcedure('getNetworkDetails', { step: stepNumber }, function(data) {
-            var html = '<div class="kb-text">' + data.text + '</div>';
-            html += '<div class="solution-actions">';
-            html += '<button class="menu-item btn-success" onclick="app.stepSolved()">✅ Помогло</button>';
-            html += '<button class="menu-item" onclick="app.showNetworkDiagnostics()">🔁 Другой шаг</button>';
-            html += '<button class="menu-item btn-danger" onclick="app.needOperator()">📞 Связь с администратором</button>';
-            html += '</div>';
-            contentEl.innerHTML = html;
+            renderNetworkStep(step, data.text);
         });
     }
     
     function renderNetworkStep(step, text) {
         var html = '<div class="kb-text">' + text + '</div>';
         html += '<div class="solution-actions">';
-        html += '<button class="menu-item btn-success" onclick="app.stepSolved()">✅ Помогло</button>';
         html += '<button class="menu-item" onclick="app.showNetworkDiagnostics()">🔁 Другой шаг</button>';
-        html += '<button class="menu-item btn-danger" onclick="app.needOperator()">📞 Связь с администратором</button>';
+        html += '<button class="menu-item btn-success" onclick="app.stepSolved()">✅ Помогло</button>';
         html += '</div>';
         contentEl.innerHTML = html;
     }
@@ -245,7 +237,6 @@
         var html = '<div class="kb-text">' + text + '</div>';
         html += '<div class="solution-actions">';
         html += '<button class="menu-item btn-success" onclick="app.problemSolved()">✅ Проблема решена</button>';
-        html += '<button class="menu-item btn-danger" onclick="app.needOperator()">❌ Нужна помощь</button>';
         html += '</div>';
         contentEl.innerHTML = html;
     }
