@@ -1,6 +1,4 @@
 (function() {
-
-    const app_id = document.body.dataset.appId;
     
     if (!window.vkBridge) {
         document.getElementById('content').innerHTML = 
@@ -28,7 +26,7 @@
     
     function initApp() {
         bridge.send("VKWebAppGetAuthToken", {
-            "app_id": app_id,
+            "app_id": "54477515",
             "scope": ""
         }).then(function(data) {
             userToken = data.access_token;
