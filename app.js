@@ -5,41 +5,6 @@
             '<div class="error">Ошибка: VK Bridge не загружен</div>';
         return;
     }
-
-        // === ЗАГЛУШЕНИЕ ОШИБОК СТАТИСТИКИ VK ===
-    var originalError = console.error;
-    var originalWarn = console.warn;
-    var originalLog = console.log;
-
-    console.error = function() {
-        var args = Array.prototype.slice.call(arguments);
-        var message = args.join(' ');
-        // Фильтруем сообщения, содержащие stats.vk-portal.net и 403
-        if (message && message.indexOf('stats.vk-portal.net') > -1 && message.indexOf('403') > -1) {
-            // Игнорируем
-            return;
-        }
-        originalError.apply(console, args);
-    };
-
-    console.warn = function() {
-        var args = Array.prototype.slice.call(arguments);
-        var message = args.join(' ');
-        if (message && message.indexOf('stats.vk-portal.net') > -1 && message.indexOf('403') > -1) {
-            return;
-        }
-        originalWarn.apply(console, args);
-    };
-
-    console.log = function() {
-        var args = Array.prototype.slice.call(arguments);
-        var message = args.join(' ');
-        if (message && message.indexOf('stats.vk-portal.net') > -1 && message.indexOf('403') > -1) {
-            return;
-        }
-        originalLog.apply(console, args);
-    };
-        // =======================================
     
     var bridge = window.vkBridge.default || window.vkBridge;
     bridge.send('VKWebAppInit');
