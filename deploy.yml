@@ -4,5 +4,5 @@ jobs:
       - run: |
           echo "window.APP_CONFIG = {
             app_id: '${vars.APP_ID}'
-          };" > public/config.js
+          };" > config.js
       - uses: actions/configure-pages@v4
