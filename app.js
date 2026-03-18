@@ -1,5 +1,12 @@
 (function() {
 
+    if (!window.APP_CONFIG || !window.APP_CONFIG.app_id) {
+        document.getElementById('content').innerHTML = 
+            '<div class="error">Ошибка конфигурации: APP_ID не найден. Проверьте настройки GitHub Pages.</div>';
+        console.error('APP_CONFIG not found. Make sure config.js is generated correctly.');
+        return;
+    }
+
     const app_id = window.APP_CONFIG.app_id;
     
     if (!window.vkBridge) {
