@@ -8,7 +8,7 @@ jobs:
         run: |
           echo "window.APP_CONFIG = {
             app_id: '${{ vars.APP_ID }}'
-          };" > config.js  # Изменено: public/config.js → config.js
+          };" > config.js
       
       - name: Deploy to GitHub Pages
         uses: actions/configure-pages@v4
