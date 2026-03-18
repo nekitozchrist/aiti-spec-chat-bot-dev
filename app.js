@@ -1,6 +1,6 @@
 (function() {
 
-    const app_id = window.APP_ID;
+    const app_id = document.body.dataset.appId;
     
     if (!window.vkBridge) {
         document.getElementById('content').innerHTML = 
