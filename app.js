@@ -1,4 +1,7 @@
 (function() {
+
+    const app_id = window.APP_CONFIG.app_id;
+    
     if (!window.vkBridge) {
         document.getElementById('content').innerHTML = 
             '<div class="error">Ошибка: VK Bridge не загружен</div>';
@@ -25,7 +28,7 @@
     
     function initApp() {
         bridge.send("VKWebAppGetAuthToken", {
-            "app_id": ${{ vars.APP_ID }},
+            "app_id": app_id,
             "scope": ""
         }).then(function(data) {
             userToken = data.access_token;
