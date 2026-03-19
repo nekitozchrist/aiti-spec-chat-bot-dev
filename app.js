@@ -171,7 +171,7 @@
         
         if (key === 'network_diag_category') {
             contentEl.innerHTML = '<div class="loading">Загрузка...</div>';
-            callProcedure('getNetworkDiagList', {}, function(data) {
+            callProcedure('getDiagnosticsList', {}, function(data) {
                 renderNetworkProblems(data);
             });
         } else {
@@ -181,6 +181,8 @@
             }
             
             contentEl.innerHTML = '<div class="loading">Загрузка...</div>';
+            // Было: getKnowledgeText
+            // Стало:
             callProcedure('getDiagnosticsText', { category: key }, function(data) {
                 if (!cache.diagnosticsTexts) cache.diagnosticsTexts = {};
                 cache.diagnosticsTexts[key] = data;
