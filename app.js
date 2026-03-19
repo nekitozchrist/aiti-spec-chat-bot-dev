@@ -18,9 +18,11 @@
         mainMenu: null,
         knowledgeCategories: null,
         knowledgeTexts: {},
+        diagnosticsCategories: null,
+        diagnosticsTexts: {},
         diagnosticsList: null,
         diagnosticSolutions: {},
-        networkSteps: {},  // для хранения шагов диагностики сети
+        networkSteps: {},
         info: null
     };
     
@@ -133,7 +135,6 @@
     }
     
     function renderKnowledgeContent(key, data) {
-        // База знаний всегда возвращает текст (поле text или просто строку)
         var text = data.text || data;
         contentEl.innerHTML = '<div class="kb-text">' + text + '</div>';
     }
@@ -142,26 +143,64 @@
         currentScreen = 'diagnostics';
         headerEl.innerHTML = '<button class="back-btn" onclick="app.showMainMenu()">← Назад</button>';
         
-        if (cache.diagnosticsList) {
-            renderDiagnosticsList(cache.diagnosticsList);
+        if (cache.diagnosticsCategories) {
+            renderDiagnosticsCategories(cache.diagnosticsCategories);
             return;
         }
         
         contentEl.innerHTML = '<div class="loading">Загрузка...</div>';
         
-        callProcedure('getDiagnosticsList', {}, function(data) {
-            cache.diagnosticsList = data;
-            renderDiagnosticsList(data);
+        callProcedure('getDiagnosticsCategories', {}, function(data) {
+            cache.diagnosticsCategories = data;
+            renderDiagnosticsCategories(data);
         });
     }
     
-    function renderDiagnosticsList(data) {
+    function renderDiagnosticsCategories(data) {
         var html = '';
+        for (var i = 0; i < data.categories.length; i++) {
+            var cat = data.categories[i];
+            html += '<button class="menu-item" onclick="app.showDiagnosticsCategory(\'' + cat.key + '\')">' + cat.icon + ' ' + cat.title + '</button>';
+        }
+        contentEl.innerHTML = html;
+    }
+    
+    function showDiagnosticsCategory(key) {
+        currentScreen = 'diag_category:' + key;
+        headerEl.innerHTML = '<button class="back-btn" onclick="app.showDiagnosticsList()">← Назад</button>';
+        
+        if (key === 'network_diag_category') {
+            contentEl.innerHTML = '<div class="loading">Загрузка...</div>';
+            callProcedure('getNetworkDiagList', {}, function(data) {
+                renderNetworkProblems(data);
+            });
+        } else {
+            if (cache.diagnosticsTexts && cache.diagnosticsTexts[key]) {
+                renderDiagnosticsText(key, cache.diagnosticsTexts[key]);
+                return;
+            }
+            
+            contentEl.innerHTML = '<div class="loading">Загрузка...</div>';
+            callProcedure('getDiagnosticsText', { category: key }, function(data) {
+                if (!cache.diagnosticsTexts) cache.diagnosticsTexts = {};
+                cache.diagnosticsTexts[key] = data;
+                renderDiagnosticsText(key, data);
+            });
+        }
+    }
+    
+    function renderNetworkProblems(data) {
+        var html = '<h3>🌐 Выберите проблему</h3>';
         for (var i = 0; i < data.problems.length; i++) {
             var p = data.problems[i];
             html += '<button class="menu-item" onclick="app.handleDiagnosticChoice(\'' + p.key + '\')">' + p.icon + ' ' + p.title + '</button>';
         }
         contentEl.innerHTML = html;
+    }
+    
+    function renderDiagnosticsText(key, data) {
+        var text = data.text || data;
+        contentEl.innerHTML = '<div class="kb-text">' + text + '</div>';
     }
     
     function handleDiagnosticChoice(key) {
@@ -269,6 +308,7 @@
         showKnowledgeCategories: showKnowledgeCategories,
         showKnowledgeContent: showKnowledgeContent,
         showDiagnosticsList: showDiagnosticsList,
+        showDiagnosticsCategory: showDiagnosticsCategory,
         handleDiagnosticChoice: handleDiagnosticChoice,
         showDiagnosticSolution: showDiagnosticSolution,
         showNetworkDiagnostics: showNetworkDiagnostics,
